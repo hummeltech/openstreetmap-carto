@@ -157,8 +157,11 @@ class Downloader:
                                       last_modified = str(os.fstat(fp.fileno()).st_mtime))
         response = self.session.get(url, headers=headers)
         response.raise_for_status()
+        last_modified_header = 'Last-Modified'
+        if url.startswith("https://web.archive.org/web"):
+            last_modified_header = 'x-archive-orig-last-modified'
         return DownloadResult(status_code = response.status_code, content = response.content,
-                              last_modified = response.headers.get('Last-Modified', None))
+                              last_modified = response.headers.get(last_modified_header, None))
 
     def download(self, url, name, opts, data_dir, table_last_modified):
         filename = os.path.join(data_dir, os.path.basename(urlparse(url).path))
